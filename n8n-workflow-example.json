@@ -1,0 +1,236 @@
+{
+  "name": "Auto Post Blog với ChatGPT",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "notes": "Chạy mỗi ngày lúc 9h sáng"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "Bạn là một chuyên gia viết blog về công nghệ. Hãy tạo một bài viết chất lượng cao về chủ đề được yêu cầu."
+            },
+            {
+              "role": "user",
+              "content": "Viết một bài blog về xu hướng AI mới nhất. Bài viết phải có:\n- Tiêu đề hấp dẫn\n- Tóm tắt ngắn gọn\n- Nội dung chi tiết với các heading và subheading\n- 3-5 tags phù hợp\n\nFormat output dạng JSON:\n{\n  \"title\": \"...\",\n  \"summary\": \"...\",\n  \"content\": \"...\",\n  \"tags\": [\"...\", \"...\"]\n}"
+            }
+          ]
+        },
+        "options": {
+          "temperature": 0.7,
+          "maxTokens": 2000
+        }
+      },
+      "name": "ChatGPT",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "credentials": {
+        "openAiApi": {
+          "id": "1",
+          "name": "OpenAI API"
+        }
+      },
+      "notes": "Tạo nội dung bài viết bằng ChatGPT"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse ChatGPT response\nconst response = $input.first().json.choices[0].message.content;\nconst data = JSON.parse(response);\n\n// Chuẩn bị data cho API\nreturn {\n  title: data.title,\n  summary: data.summary,\n  content: data.content,\n  tags: data.tags,\n  date: new Date().toISOString().split('T')[0]\n};"
+      },
+      "name": "Parse Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 1,
+      "position": [650, 300],
+      "notes": "Parse và chuẩn bị data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-domain.vercel.app/api/posts",
+        "authentication": "none",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "title",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "summary",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "name": "content",
+              "value": "={{ $json.content }}"
+            },
+            {
+              "name": "tags",
+              "value": "={{ $json.tags }}"
+            },
+            {
+              "name": "date",
+              "value": "={{ $json.date }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "POST to Blog API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 3,
+      "position": [850, 300],
+      "notes": "Gửi bài viết lên blog"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.success }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "name": "Check Success",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "notes": "Kiểm tra kết quả"
+    },
+    {
+      "parameters": {
+        "channel": "#blog-updates",
+        "text": "✅ Bài viết mới đã được đăng!\n\n*Tiêu đề:* {{ $json.data.title }}\n*URL:* https://your-domain.vercel.app{{ $json.data.url }}\n*Slug:* {{ $json.data.slug }}\n*Thời gian:* {{ $json.duration }}",
+        "otherOptions": {}
+      },
+      "name": "Slack Success",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1250, 200],
+      "credentials": {
+        "slackApi": {
+          "id": "2",
+          "name": "Slack API"
+        }
+      },
+      "notes": "Thông báo thành công"
+    },
+    {
+      "parameters": {
+        "channel": "#blog-alerts",
+        "text": "❌ Lỗi khi đăng bài viết!\n\n*Error:* {{ $json.error }}\n*Message:* {{ $json.message }}\n*Details:* {{ JSON.stringify($json.details) }}",
+        "otherOptions": {}
+      },
+      "name": "Slack Error",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1250, 400],
+      "credentials": {
+        "slackApi": {
+          "id": "2",
+          "name": "Slack API"
+        }
+      },
+      "notes": "Thông báo lỗi"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "ChatGPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ChatGPT": {
+      "main": [
+        [
+          {
+            "node": "Parse Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Response": {
+      "main": [
+        [
+          {
+            "node": "POST to Blog API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST to Blog API": {
+      "main": [
+        [
+          {
+            "node": "Check Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Success": {
+      "main": [
+        [
+          {
+            "node": "Slack Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-03T00:00:00.000Z",
+  "versionId": "1"
+}

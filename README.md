@@ -194,28 +194,54 @@ npm run lint
 
 ### POST /api/posts
 
-Tạo bài viết mới.
+Tạo bài viết mới với validation đầy đủ và logging chi tiết.
 
 **Request Body:**
 ```typescript
 {
-  title: string;        // Required
-  summary?: string;     // Optional
-  content: string;      // Required (Markdown)
-  tags?: string[];      // Optional
-  cover?: string;       // Optional (image URL)
-  date?: string;        // Optional (ISO 8601)
+  title: string;        // Required - Tiêu đề bài viết
+  slug?: string;        // Optional - URL slug (auto-generate nếu không có)
+  date?: string;        // Optional - Format: YYYY-MM-DD (mặc định: hôm nay)
+  tags?: string[];      // Optional - Danh sách tags
+  content: string;      // Required - Nội dung Markdown
+  summary?: string;     // Optional - Tóm tắt
+  cover?: string;       // Optional - URL ảnh cover (phải là URL hợp lệ)
 }
 ```
 
-**Response:**
-```typescript
+**Success Response (201):**
+```json
 {
-  success: boolean;
-  slug: string;
-  message: string;
+  "success": true,
+  "message": "Post created successfully",
+  "data": {
+    "slug": "tong-hop-xu-huong-ai-2025",
+    "file": "tong-hop-xu-huong-ai-2025.md",
+    "path": "/posts/tong-hop-xu-huong-ai-2025.md",
+    "url": "/blog/tong-hop-xu-huong-ai-2025",
+    "title": "Tổng hợp xu hướng AI 2025",
+    "date": "2025-11-03"
+  },
+  "duration": "15ms"
 }
 ```
+
+**Error Response (400/409/500):**
+```json
+{
+  "success": false,
+  "error": "Validation failed",
+  "message": "Dữ liệu đầu vào không hợp lệ",
+  "details": [
+    {
+      "field": "title",
+      "message": "Title không được để trống"
+    }
+  ]
+}
+```
+
+**Xem chi tiết:** [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 
 ## 🔐 Bảo mật API (Tùy chọn)
 
