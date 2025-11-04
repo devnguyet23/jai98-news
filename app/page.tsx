@@ -20,7 +20,7 @@ export default function Home() {
         </div> */}
         
         <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent">
-          Jai news
+          Jainews
         </h1>
         
         <p className="text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto font-medium">

@@ -119,7 +119,13 @@
      - Faceted search (tags, author)
      - Fixed timestamp sync issue
      - Synced 10 posts to Algolia
-   - ⏳ Authentication UI (Firebase Auth)
+   - ✅ Firebase Authentication
+     - AuthContext và AuthProvider
+     - Login/Signup pages
+     - Google Sign-in integration
+     - Protected routes với ProtectedRoute
+     - User menu trong header
+     - Auto redirect khi chưa đăng nhập
 
 ### Medium Term (Next 3-4 Weeks)
 5. ⏳ **Phase 3: n8n Automation**
