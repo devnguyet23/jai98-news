@@ -102,7 +102,7 @@ export async function syncMultiplePostsToAlgolia(posts: Post[]): Promise<void> {
     
     await client.saveObjects({
       indexName: INDEX_NAME,
-      objects: algoliaObjects,
+      objects: algoliaObjects as any,
     });
     console.log(`[Algolia] Synced ${algoliaObjects.length} posts`);
   } catch (error) {

@@ -158,10 +158,6 @@ export default function SearchPage() {
               
               <div className="mt-4 text-sm text-gray-600 dark:text-gray-400">
                 <Stats
-                  classNames={{
-                    root: '',
-                    text: 'text-sm',
-                  }}
                   translations={{
                     rootElementText({ nbHits, processingTimeMS }) {
                       return `Tìm thấy ${nbHits.toLocaleString()} kết quả trong ${processingTimeMS}ms`;

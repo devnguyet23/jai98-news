@@ -179,25 +179,29 @@ export async function PUT(
 
     // Sync Algolia
     const updatedDoc = await docRef.get();
-    const updatedPost = {
-      id: updatedDoc.id,
-      ...updatedDoc.data(),
-    };
+    const updatedPostData = updatedDoc.data();
+    
+    if (updatedPostData) {
+      const updatedPost: any = {
+        id: updatedDoc.id,
+        ...updatedPostData,
+      };
 
-    if (updatedPost.status === 'published') {
-      try {
-        await syncPostToAlgolia(updatedPost as any);
-        console.log('✅ [API] Post synced to Algolia');
-      } catch (algoliaError) {
-        console.error('⚠️  [API] Algolia sync failed:', algoliaError);
-      }
-    } else {
-      // Xóa khỏi Algolia nếu không còn published
-      try {
-        await deletePostFromAlgolia(id);
-        console.log('✅ [API] Post removed from Algolia');
-      } catch (algoliaError) {
-        console.error('⚠️  [API] Algolia delete failed:', algoliaError);
+      if (updatedPost.status === 'published') {
+        try {
+          await syncPostToAlgolia(updatedPost as any);
+          console.log('✅ [API] Post synced to Algolia');
+        } catch (algoliaError) {
+          console.error('⚠️  [API] Algolia sync failed:', algoliaError);
+        }
+      } else {
+        // Xóa khỏi Algolia nếu không còn published
+        try {
+          await deletePostFromAlgolia(id);
+          console.log('✅ [API] Post removed from Algolia');
+        } catch (algoliaError) {
+          console.error('⚠️  [API] Algolia delete failed:', algoliaError);
+        }
       }
     }
 
