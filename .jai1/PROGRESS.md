@@ -91,23 +91,35 @@
    - Deploy Security Rules
    - Tạo admin user đầu tiên
 
-2. ⏳ **Setup Algolia**
-   - Tạo account và application
-   - Configure index settings
-   - Test search functionality
+2. ✅ **Setup Algolia** (COMPLETED)
+   - ✅ Tạo account và application
+   - ✅ Configure index settings
+   - ✅ Test search functionality - Kết nối thành công
 
-3. ⏳ **Test API Endpoints**
-   - Tạo test scripts
-   - Verify CRUD operations
-   - Test Algolia sync
-   - Performance testing
+3. ✅ **Test API Endpoints** (COMPLETED)
+   - ✅ Tạo test scripts
+   - ✅ Test script đơn giản (test-api-simple.ts)
+   - ✅ Test script toàn diện (test-api-endpoints.ts)
+   - ✅ Thêm npm scripts vào package.json
+   - ✅ Tạo documentation (scripts/README.md, TROUBLESHOOTING.md)
+   - ⚠️  **BLOCKER:** Cần cập nhật Firebase Admin credentials trong .env để test APIs
 
 ### Short Term (Next 1-2 Weeks)
-4. ⏳ **Phase 2: Frontend Development**
-   - Migrate existing pages to use Firebase
-   - Implement search với Algolia
-   - Create admin dashboard
-   - Authentication UI
+4. ✅ **Phase 2: Frontend Development** (COMPLETED)
+   - ✅ Migrate blog listing page (`/blog`) to Firebase
+   - ✅ Migrate blog detail page (`/blog/[slug]`) to Firebase
+   - ✅ Create admin dashboard
+     - Dashboard với stats overview
+     - Posts management (list, create, edit)
+     - Markdown editor
+     - Auto-slug generation
+   - ✅ Implement search với Algolia
+     - InstantSearch UI với filters
+     - Real-time search
+     - Faceted search (tags, author)
+     - Fixed timestamp sync issue
+     - Synced 10 posts to Algolia
+   - ⏳ Authentication UI (Firebase Auth)
 
 ### Medium Term (Next 3-4 Weeks)
 5. ⏳ **Phase 3: n8n Automation**

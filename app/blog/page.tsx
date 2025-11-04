@@ -1,15 +1,35 @@
 import Link from "next/link";
-import { getAllPosts } from "@/lib/posts";
 import { Calendar, Tag } from "lucide-react";
 import Image from "next/image";
 
 export const metadata = {
-  title: "Blog - Andy's Blog",
+  title: "Blog - Jai98 News",
   description: "Tất cả bài viết trên blog",
 };
 
-export default function BlogPage() {
-  const posts = getAllPosts();
+// Fetch posts từ Firebase API
+async function getPosts() {
+  try {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/firebase/posts?status=published&limit=50`, {
+      cache: 'no-store', // Không cache để luôn lấy data mới nhất
+    });
+    
+    if (!res.ok) {
+      console.error('Failed to fetch posts:', res.statusText);
+      return [];
+    }
+    
+    const data = await res.json();
+    return data.data?.posts || [];
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    return [];
+  }
+}
+
+export default async function BlogPage() {
+  const posts = await getPosts();
 
   if (posts.length === 0) {
     return (
@@ -32,23 +52,23 @@ export default function BlogPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {posts.map((post) => (
+        {posts.map((post: any) => (
           <Link
-            key={post.slug}
+            key={post.id}
             href={`/blog/${post.slug}`}
             className="group block rounded-lg border border-gray-200 dark:border-gray-800 overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
           >
-            {post.cover && (
+            {post.coverImageUrl && (
               <div className="relative w-full h-48 bg-gray-100 dark:bg-gray-800">
                 <Image
-                  src={post.cover}
+                  src={post.coverImageUrl}
                   alt={post.title}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
                 />
               </div>
             )}
-            {!post.cover && (
+            {!post.coverImageUrl && (
               <div className="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                 <span className="text-white text-4xl font-bold">
                   {post.title.charAt(0)}
@@ -68,14 +88,19 @@ export default function BlogPage() {
               <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-500">
                 <div className="flex items-center gap-1">
                   <Calendar className="w-4 h-4" />
-                  <span>{new Date(post.date).toLocaleDateString('vi-VN')}</span>
+                  <span>{new Date(post.publishedAt || post.createdAt).toLocaleDateString('vi-VN')}</span>
                 </div>
+                {post.authorName && (
+                  <span className="text-xs text-gray-500">
+                    bởi {post.authorName}
+                  </span>
+                )}
               </div>
               
-              {post.tags.length > 0 && (
+              {post.tags && post.tags.length > 0 && (
                 <div className="flex items-center gap-2 flex-wrap">
                   <Tag className="w-4 h-4 text-gray-500" />
-                  {post.tags.slice(0, 3).map((tag) => (
+                  {post.tags.slice(0, 3).map((tag: string) => (
                     <span
                       key={tag}
                       className="text-xs px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded"

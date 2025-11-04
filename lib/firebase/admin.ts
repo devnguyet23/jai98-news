@@ -6,7 +6,16 @@ import * as admin from 'firebase-admin';
  */
 
 if (!admin.apps.length) {
-  const privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  // Xử lý private key - loại bỏ quotes và replace \\n thành newline thực
+  let privateKey = process.env.FIREBASE_ADMIN_PRIVATE_KEY || '';
+  
+  // Loại bỏ quotes nếu có
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  
+  // Replace escaped newlines
+  privateKey = privateKey.replace(/\\n/g, '\n');
 
   admin.initializeApp({
     credential: admin.credential.cert({

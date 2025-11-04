@@ -15,6 +15,32 @@ const INDEX_NAME = 'posts_production';
  * Convert Firestore Post to Algolia Post
  */
 function postToAlgoliaObject(post: Post): AlgoliaPost {
+  // Handle both Firestore Timestamp and Date objects
+  let publishedAtTimestamp: number;
+  
+  if (post.publishedAt) {
+    // Check if it's a Firestore Timestamp
+    if (typeof (post.publishedAt as any).toMillis === 'function') {
+      publishedAtTimestamp = (post.publishedAt as any).toMillis();
+    } 
+    // Check if it's a Date object
+    else if (post.publishedAt instanceof Date) {
+      publishedAtTimestamp = post.publishedAt.getTime();
+    }
+    // Check if it's already a timestamp or ISO string
+    else if (typeof post.publishedAt === 'number') {
+      publishedAtTimestamp = post.publishedAt;
+    }
+    else if (typeof post.publishedAt === 'string') {
+      publishedAtTimestamp = new Date(post.publishedAt).getTime();
+    }
+    else {
+      publishedAtTimestamp = Date.now();
+    }
+  } else {
+    publishedAtTimestamp = Date.now();
+  }
+
   return {
     objectID: post.id,
     title: post.title,
@@ -23,7 +49,7 @@ function postToAlgoliaObject(post: Post): AlgoliaPost {
     content: post.content,
     tags: post.tags,
     authorName: post.authorName,
-    publishedAt: post.publishedAt?.toMillis() || Date.now(),
+    publishedAt: publishedAtTimestamp,
   };
 }
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
+import { Search } from "lucide-react";
 
 export default function Header() {
   return (
@@ -23,6 +24,13 @@ export default function Header() {
             className="text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
           >
             Blog
+          </Link>
+          <Link
+            href="/search"
+            className="flex items-center gap-1 text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+          >
+            <Search className="w-4 h-4" />
+            <span className="hidden sm:inline">Tìm kiếm</span>
           </Link>
           <ThemeToggle />
         </nav>
